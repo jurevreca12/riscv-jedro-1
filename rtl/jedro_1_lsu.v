@@ -245,19 +245,34 @@ always @(posedge clk_i) begin
     end
 end
 
+
 always @(posedge clk_i) begin
-    if (rstn_i == 1'b0) begin
-       ram_addr <= 0;
-       ram_we <= 0;
-       ram_wdata <= 0; 
-       ram_stb <= 0;
-    end
-    else begin
-       ram_addr  <= addr_i;
-       ram_we    <= we & {4{ctrl_valid_i&(~misaligned_store)}};
-       ram_wdata <= active_write_word;
-       ram_stb   <= ctrl_valid_i; 
-    end
+	if (~rstn_i) begin
+		ram_stb <= 1'b0;
+    	ram_addr <= 0;
+    	ram_we <= 0;
+    	ram_wdata <= 0; 
+	end
+	else begin
+		if (~ram_stb) begin
+			ram_stb  <= ctrl_valid_i;
+       		ram_addr <= addr_i;
+			ram_we   <= we & {4{ctrl_valid_i&(~misaligned_store)}}; 
+       		ram_wdata <= active_write_word;
+		end
+		else if (ram_ack) begin
+			ram_stb   <= 0;
+			ram_addr  <= 0;
+			ram_we    <= 0;
+			ram_wdata <= 0;
+		end
+		else begin
+			ram_stb   <= ram_stb;
+			ram_addr  <= ram_addr;
+			ram_we    <= ram_we;
+			ram_wdata <= ram_wdata;
+		end
+	end
 end
 
 
