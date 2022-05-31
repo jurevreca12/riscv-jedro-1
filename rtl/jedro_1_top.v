@@ -59,10 +59,8 @@ wire [`DATA_WIDTH-1:0]      decoder_mux2_instr_addr;
 reg  [`DATA_WIDTH-1:0]      decoder_1_mux2_instr_addr;
 wire                        decoder_mux2_use_pc;
 wire [`CSR_ADDR_WIDTH-1:0]  decoder_csr_addr;
-wire [`DATA_WIDTH-1:0]      decoder_csr_data;
 wire [`DATA_WIDTH-1:0]      csr_decoder_data;
 wire                        decoder_csr_we;
-wire [`CSR_WMODE_WIDTH-1:0] decoder_csr_wtype;
 wire [`CSR_UIMM_WIDTH-1:0]  decoder_csr_uimm;
 wire                        decoder_csr_uimm_we;
 wire [`CSR_WMODE_WIDTH-1:0] decoder_csr_wmode;
@@ -73,7 +71,6 @@ wire                        decoder_csr_ebreak;
 wire [`DATA_WIDTH-1:0]      alu_mux4_res;
 wire [`REG_ADDR_WIDTH-1:0]  alu_mux4_dest_addr;
 wire                        alu_mux4_wb;
-wire                        alu_overflow;
 wire                        alu_decoder_ops_eq;
 wire [`DATA_WIDTH-1:0]      rf_alu_data_a;
 wire [`DATA_WIDTH-1:0]      rf_alu_data_b;
@@ -91,7 +88,6 @@ wire                        lsu_csr_misaligned_load;
 wire                        lsu_csr_misaligned_store;
 wire [`DATA_WIDTH-1:0]      lsu_csr_misaligned_addr;
 wire                        lsu_csr_bus_error;
-wire                        lsu_decoder_read_complete;
 reg  [`DATA_WIDTH-1:0]      mux4_rf_data;
 reg                         mux4_rf_wb;
 reg  [`REG_ADDR_WIDTH-1:0]  mux4_rf_dest_addr;
@@ -219,9 +215,9 @@ jedro_1_csr csr_inst (.clk_i                   (clk_i),
                       .decoder_exc_ecall_i         (decoder_csr_ecall),
                       .decoder_exc_ebreak_i        (decoder_csr_ebreak),
 
-                      .sw_irq_i    (), // TODO
-                      .timer_irq_i (),
-                      .ext_irq_i   (),
+                      .sw_irq_i    (1'b0), // TODO
+                      .timer_irq_i (1'b0),
+                      .ext_irq_i   (1'b0),
 
                       .mret_i      (decoder_csr_mret)
                      );
@@ -233,7 +229,7 @@ jedro_1_alu alu_inst(.clk_i       (clk_i),
                      .op_b_i      (mux_alu_op_b),
                      .res_ro      (alu_mux4_res),
                      .ops_eq_ro   (alu_decoder_ops_eq),
-                     .overflow_ro (alu_overflow),
+                     .overflow_ro (),
                      .dest_addr_i (decoder_alu_dest_addr),
                      .dest_addr_ro(alu_mux4_dest_addr),
                      .wb_i        (decoder_alu_wb & ~csr_ifu_trap),

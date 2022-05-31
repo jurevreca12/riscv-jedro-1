@@ -163,13 +163,11 @@ reg  [40:0] state, next;
 // Helpfull shorthands for sections of the instruction (see riscv specifications)
 wire [6:0]   opcode; 
 wire [11:7]  regdest;  
-wire [11:7]  imm4_0; 
 wire [31:12] imm31_12; // U-type immediate 
 wire [31:20] imm11_0; // I-type immediate
 wire [14:12] funct3;
 wire [19:15] regs1;
 wire [24:20] regs2;
-wire [31:25] funct7;
 
 
 /*************************************
@@ -177,13 +175,11 @@ wire [31:25] funct7;
 *************************************/
 assign opcode   = instr_i[6:0];
 assign regdest  = instr_i[11:7];
-assign imm4_0   = instr_i[11:7];
 assign imm31_12 = instr_i[31:12]; // U-type immediate 
 assign imm11_0  = instr_i[31:20]; // I-type immediate
 assign funct3   = instr_i[14:12];
 assign regs1    = instr_i[19:15];
 assign regs2    = instr_i[24:20];
-assign funct7   = instr_i[31:25];
 
 
 /*************************************
@@ -370,7 +366,7 @@ begin
   alu_sel_w           = 4'b0000;
   alu_op_a_w          = 1'b0;
   alu_op_b_w          = 1'b0;
-  alu_dest_addr_w     = 4'b0;
+  alu_dest_addr_w     = 5'b0;
   alu_wb_w            = 1'b0; 
   rf_addr_a_w         = 5'b00000;
   rf_addr_b_w         = 5'b00000;
@@ -624,7 +620,7 @@ begin
         else if (state == eBRANCH_STALL) begin
             use_alu_jmp_addr_w = 1'b1;
             use_pc_w           = 1'b0; 
-            alu_sel_w          = 5'b00000;
+            alu_sel_w          = 4'b0000;
             alu_op_a_w         = 1'b0;
             alu_op_b_w         = 1'b0;
             rf_addr_a_w        = 5'b00000;
@@ -636,7 +632,7 @@ begin
         else begin
             use_alu_jmp_addr_w = 1'b0;
             use_pc_w           = 1'b0; 
-            alu_sel_w          = 5'b00000;
+            alu_sel_w          = 4'b0000;
             alu_op_a_w         = 1'b0;
             alu_op_b_w         = 1'b0;
             rf_addr_a_w        = 5'b00000;
@@ -752,7 +748,7 @@ begin
         if (funct3 != 3'b000) begin // CSR INSTRUCTIONS
             if (funct3 == `CSRRW_INSTR_FUNCT3  |
                 funct3 == `CSRRWI_INSTR_FUNCT3) begin // CSRRW and CSRRWI instructions
-                csr_addr_w = {20'b0, imm11_0};
+                csr_addr_w = imm11_0;
                 if (state != eCSRRW_READ_CSR &&
                     state != eCSRRW_READ_WAIT_0 &&
                     state != eCSRRW_READ_WAIT_1 &&
@@ -806,7 +802,7 @@ begin
 
             end
             else begin // CSRRS/I and CSRRC/I instructions
-                csr_addr_w = {20'b0, imm11_0};
+                csr_addr_w = imm11_0;
                 if (state != eCSRRSC_READ_CSR &&
                     state != eCSRRSC_READ_WAIT_0 &&
                     state != eCSRRSC_READ_WAIT_1 &&
@@ -927,7 +923,7 @@ begin
         alu_sel_w          = 4'b0000;
         alu_op_a_w         = 1'b0;
         alu_op_b_w         = 1'b0;
-        alu_dest_addr_w    = 4'b0;
+        alu_dest_addr_w    = 5'b0;
         alu_wb_w           = 1'b0; 
         rf_addr_a_w        = 5'b00000;
         rf_addr_b_w        = 5'b00000;

@@ -44,9 +44,9 @@ wire [`DATA_WIDTH-1:0] less_than_sign_res;
 wire [`DATA_WIDTH-1:0] less_than_unsign_res;
 wire [`DATA_WIDTH-1:0] shifter_right_res;
 wire [`DATA_WIDTH-1:0] shifter_left_res;
-wire                  ops_eq_res;
-wire                  adder_overflow;
-
+wire                   ops_eq_res;
+wire                   adder_overflow;
+reg  [`DATA_WIDTH-1:0] res_w;
 
 
 /*******************************
@@ -60,6 +60,7 @@ always@(posedge clk_i) begin
   end
   else begin
     overflow_ro <= adder_overflow;
+	res_ro <= res_w;
     ops_eq_ro <= ops_eq_res;
   end
 end
@@ -136,51 +137,51 @@ barrel_shifter_right_32b shifter_right_32b_inst
 /*******************************
 * RESULT MUXING
 *******************************/
-always@(posedge clk_i)
+always@(*)
 begin
   case (sel_i)
     `ALU_OP_ADD: begin
-      res_ro <= adder_res; 
+      res_w = adder_res; 
     end
 
     `ALU_OP_SUB: begin
-      res_ro <= adder_res;
+      res_w = adder_res;
     end
 
     `ALU_OP_SLL: begin
-      res_ro <= shifter_left_res; 
+      res_w = shifter_left_res; 
     end
 
     `ALU_OP_SLT: begin
-      res_ro <= less_than_sign_res;
+      res_w = less_than_sign_res;
     end
 
     `ALU_OP_SLTU: begin
-      res_ro <= less_than_unsign_res;
+      res_w = less_than_unsign_res;
     end
 
     `ALU_OP_XOR: begin
-      res_ro <= xor_res;
+      res_w = xor_res;
     end
 
     `ALU_OP_SRL: begin
-      res_ro <= shifter_right_res;
+      res_w = shifter_right_res;
     end
 
     `ALU_OP_SRA: begin
-      res_ro <= shifter_right_res;
+      res_w = shifter_right_res;
     end
 
     `ALU_OP_OR: begin
-      res_ro <= or_res;
+      res_w = or_res;
     end
 
     `ALU_OP_AND: begin
-      res_ro <= and_res; 
+      res_w = and_res; 
     end
 
     default: begin 
-      res_ro <= 32'b0;
+      res_w = 32'b0;
     end
   endcase
 end

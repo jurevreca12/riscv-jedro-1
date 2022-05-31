@@ -55,7 +55,6 @@ wire [`DATA_WIDTH-1:0]     hword_sign_extended_w;
 reg  [7:0]                 active_byte;
 reg  [15:0]                active_hword;
 reg  [1:0]                 byte_addr_r;
-reg                        ram_start_decode_r;
 reg  [`LSU_CTRL_WIDTH-1:0] ctrl_save_r;
 
 reg [31:0]                 active_write_word;
@@ -81,6 +80,7 @@ always@(*) begin
             `LSU_STORE_BYTE       : misaligned_store = 1'b0;
             `LSU_STORE_HALF_WORD  : misaligned_store = addr_i[0];
             `LSU_STORE_WORD       : misaligned_store = |addr_i[1:0];
+			default				  : misaligned_load = 1'b0;
         endcase
     end
     else begin

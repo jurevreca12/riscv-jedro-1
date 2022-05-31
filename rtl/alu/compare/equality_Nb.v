@@ -24,3 +24,4 @@ assign w = a ^ b;
 assign r = ~( |w );
 
 endmodule
+

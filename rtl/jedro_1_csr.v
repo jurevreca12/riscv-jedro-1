@@ -14,9 +14,6 @@
 `include "jedro_1_defines.v"
 
 module jedro_1_csr
-#(
-  parameter DATA_WIDTH = 32
-)
 (
   input wire clk_i,
   input wire rstn_i,
@@ -93,7 +90,6 @@ reg [`DATA_WIDTH-1:0] csr_mcause_r, csr_mcause_n, csr_mcause_exc;
 reg [`DATA_WIDTH-1:0] csr_mtval_r, csr_mtval_n, csr_mtval_exc;
 
 // Other signals
-wire [`DATA_WIDTH-1:0] uimm_data_ext;
 reg                    csr_illegal_instr_exc; // Signals illegal csr write 
 wire                   is_exception;
 wire                   is_write;
@@ -196,9 +192,9 @@ always@(*) begin
         
         `CSR_ADDR_MSTATUS: begin
             // CSR_DEF_VAL_MSTATUS is all zeros
-            data_n = `CSR_DEF_VAL_MSTATUS | 
-                     (csr_mstatus_mie_r << `CSR_MSTATUS_BIT_MIE) |
-                     (csr_mstatus_mpie_r << `CSR_MSTATUS_BIT_MPIE);
+            data_n = `CSR_DEF_VAL_MSTATUS;
+			data_n[`CSR_MSTATUS_BIT_MIE] = csr_mstatus_mie_r;
+			data_n[`CSR_MSTATUS_BIT_MPIE] = csr_mstatus_mpie_r;
             if (is_write) begin
                 csr_mstatus_mie_n = data_mod[`CSR_MSTATUS_BIT_MIE];
                 csr_mstatus_mpie_n = data_mod[`CSR_MSTATUS_BIT_MPIE];
